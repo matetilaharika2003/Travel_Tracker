@@ -132,7 +132,7 @@ const db = new pg.Client({
   ssl: { rejectUnauthorized: false }  // REQUIRED on Render
 });
 
-db.connect();
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -157,6 +157,39 @@ async function getCurrentUser() {
   const result = await db.query("SELECT * FROM users");
   users = result.rows;
   return users.find((user) => user.id == currentUserId);
+}
+
+async function initDB() {
+  await db.connect();
+
+  // users table
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      color TEXT NOT NULL
+    );
+  `);
+
+  // countries table (used for lookup)
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS countries (
+      country_code VARCHAR(2) PRIMARY KEY,
+      country_name TEXT NOT NULL
+    );
+  `);
+
+  // visited countries table
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS visited_countries (
+      id SERIAL PRIMARY KEY,
+      country_code VARCHAR(2) REFERENCES countries(country_code),
+      user_id INTEGER REFERENCES users(id),
+      UNIQUE (country_code, user_id)
+    );
+  `);
+
+  console.log("Database initialized");
 }
 
 // Home page
@@ -271,6 +304,9 @@ app.post("/new", async (req, res) => {
   res.redirect("/");
 });
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+initDB().then(() => {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 });
+
