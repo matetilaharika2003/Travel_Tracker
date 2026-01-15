@@ -108,6 +108,28 @@ app.post("/add", async (req, res) => {
 
     const countryCode = result.rows[0].country_code;
 
+     // Check if already visited
+    const exists = await db.query(
+      `SELECT 1 
+       FROM visited_countries 
+       WHERE country_code = $1 AND user_id = $2`,
+      [countryCode, currentUserId]
+    );
+
+    if (exists.rows.length > 0) {
+      const countries = await checkVisited();
+      return res.render("index.ejs", {
+        countries,
+        total: countries.length,
+        users,
+        color: currentUser.color,
+        error: "You have already visited this country!",
+      });
+    }
+
+    
+    // Insert visited country
+    
     await db.query(
       `INSERT INTO visited_countries (country_code, user_id)
        VALUES ($1, $2)
