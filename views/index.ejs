@@ -388,6 +388,21 @@
   <h2 class="total-count">Total Countries: <%=total%>
   </h2>
   <script>
+  // Pass the countries array from Node directly to JS
+  const visitedCountries = <%- JSON.stringify(countries) %>;
+  const highlightColor = "<%= color %>";
+
+  visitedCountries.forEach(code => {
+    const el = document.getElementById(code.toUpperCase());
+    if (el) {
+      el.style.fill = highlightColor;
+    } else {
+      console.warn(`No SVG element found for country code: ${code}`);
+    }
+  });
+</script>
+
+  <!-- <script>
    
 
     const country_codes = "<%= countries %>".split(",")
@@ -398,7 +413,7 @@
    
 
 
-  </script>
+  </script> -->
 </body>
 
 </html>
