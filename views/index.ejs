@@ -1,38 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Travel Tracker</title>
   <link rel="stylesheet" href="./styles/main.css">
 </head>
-
 <body>
-  <form class="tab-view tab-view-height-auto" action="/user" method="post">
-    <% users.forEach(function(user) { %>
-      <input type="submit" name="user" value="<%= user.id %>" id="<%= user.id %>">
-      <label for="<%= user.id %>" style="background-color: <%= user.color %>;">
-        <%= user.name %>
-      </label>
-      <% }); %>
+  <!-- ------------------------ -->
+  <!-- TOP BAR: WELCOME + LOGOUT -->
+  <!-- ------------------------ -->
+  <div class="top-bar">
+    <h1 class="welcome-user">Welcome, <%= userName %>!</h1>
+    <form action="/logout" method="get" class="logout-form">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
 
-        <input type="submit" name="add" value="new" id="tab">
-        <label for="tab">Add Family Member</label>
-
+  <!-- ------------------------ -->
+  <!-- ADD COUNTRY FORM         -->
+  <!-- ------------------------ -->
+  <form action="/add" method="post" class="add-form">
+    <input type="text" name="country" autofocus placeholder="<%= error ? error : 'Enter country name' %>">
+    <button type="submit" class="add-button" style="background-color: <%= color %>;">Add</button>
   </form>
 
-  <form action="/add" method="post">
-    <input type="text" name="country" autofocus placeholder="<%= locals.error ? error :  'Enter country name'%>">
-    <button type="submit" style="background-color: <%= color %>;">Add</button>
-  </form>
-
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+  
+    <!-- ------------------------ -->
+  <!-- MAIN CONTENT: MAP + DASHBOARD -->
+  <!-- ------------------------ -->
+   <div class="main-content">
+    <!-- Map -->
   <section class="ag-canvas">
+   
+
     <svg class="ag-canvas_svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
       version="1.1" viewBox="0 0 1008 651">
       <path id="AE" title="United Arab Emirates"
         d="M619.874,393.722L620.373,393.573L620.477,394.411L622.671,393.93L624.99,394.009L626.684,394.1L628.604,392.028L630.695,390.054L632.467,388.146L633.001,389.202L633.382,391.639L631.949,391.651L631.72,393.648L632.216,394.073L630.947,394.674L630.939,395.919L630.122,397.175L630.049,398.394L629.484,399.032L621.056,397.508L619.981,394.428z" />
-
       <path id="AF" title="Afghanistan"
         d="M646.879,356.901L649.738,358.201L651.853,357.745L652.438,356.188L654.651,355.669L656.231,354.617L656.791,351.832L659.154,351.154L659.594,349.902L660.917,350.843L661.762,350.952L663.323,350.975L665.438,351.716L666.295,352.143L668.324,351.017L669.27,351.694L670.174,350.085L671.85,350.159L672.281,349.641L672.578,348.213L673.785,346.975L675.303,347.785L674.998,348.869L675.846,349.038L675.585,351.994L676.694,353.137L677.672,352.404L678.916,352.057L680.663,350.486L682.594,350.745L685.486,350.751L685.985,351.758L684.353,352.15L682.928,352.795L679.71,353.2L676.699,353.931L675.063,355.439L675.725,356.899L676.046,358.603L674.649,360.033L674.766,361.335L673.995,362.549L671.328,362.444L672.43,364.663L670.646,365.507L669.455,367.511L669.609,369.491L668.514,370.415L667.477,370.109L665.334,370.537L665.027,371.451L662.939,371.446L661.377,373.289L661.278,376.039L657.635,377.374L655.682,377.092L655.114,377.794L653.438,377.386L650.634,377.865L645.936,376.228L648.479,373.298L648.249,371.202L646.125,370.65L645.905,368.565L644.987,365.921L646.187,364.094L644.966,363.599L645.736,361.148z" />
       <path id="AL" title="Albania"
@@ -384,56 +392,155 @@
       <path id="ZW" title="Zimbabwe"
         d="M562.709,526.998L561.219,526.697L560.274,527.059L558.917,526.548L557.776,526.516L555.989,525.158L553.821,524.698L552.996,522.803L552.989,521.752L551.788,521.432L548.615,518.177L547.733,516.471L547.169,515.946L546.09,513.602L549.224,513.922L550.135,514.26L551.082,514.192L552.634,512.299L555.073,509.904L556.076,509.676L556.417,508.67L558.014,507.516L560.138,507.12L560.319,508.2L562.658,508.142L563.957,508.754L564.562,509.472L565.896,509.683L567.353,510.617L567.359,514.312L566.813,516.347L566.692,518.55L567.143,519.426L566.826,521.172L566.402,521.443L565.663,523.593z" />
     </svg>
+    <!-- Tooltip -->
+<div id="tooltip" class="map-tooltip"></div>
+    
   </section>
-  <h2 class="total-count">Total Countries: <%=total%>
-  </h2>
-  <script>
-  const visitedCountries = <%- JSON.stringify(countries) %>;
-  const highlightColor = "<%= color %>";
 
-  let coloredCount = 0;
 
-  visitedCountries.forEach(code => {
-    const el = document.getElementById(code.toUpperCase());
-    if (el) {
-      el.style.fill = highlightColor;
-      coloredCount++;
-    }else {
-      console.warn(`No SVG element found for country code: ${code}`);
-    }
+  
+    <!-- Dashboard -->
+    <aside class="dashboard">
+      <h2>Dashboard</h2>
+
+      <!-- Stats -->
+      <div class="stats">
+        <p>Total Countries Visited: <%= total %></p>
+        <p>Percentage of World: <%= ((total / 195) * 100).toFixed(1) %>%</p>
+
+<% if (countries.length > 0) { %>
+  <p>Most Recent Visit: <%= countries[countries.length - 1].name %> (<%= countries[countries.length - 1].code %>)</p>
+<% } %>
+      </div>
+
+      <!-- Visited Countries List  -->
+       <div class="countries-list">
+        <h3>Visited Countries</h3>
+        <ul>
+          <% countries.forEach(country => { %>
+          
+              <li><%= country.name %> (<%= country.code %>) </li>
+          <% }) %>
+        </ul> 
+
+
+      </div>
+   <!-- Visited by Continent (List) -->
+ <h3>Visited by Continent</h3>
+<ul>
+  <% continentStats.forEach(item => { %>
+    <li><%= item.continent %>: <%= item.count %></li>
+  <% }) %>
+</ul>
+
+    </aside>
+     <!-- Doughnut Chart -->
+    <div class="chart">
+  <h3>Visited by Continent</h3>
+  <canvas id="continentChart"></canvas>
+</div>
+
+
+  </div>
+  
+
+  <!-- ------------------------ -->
+  <!-- SCRIPT TO COLOR MAP      -->
+  <!-- ------------------------ -->
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<script>
+const visitedCountries = <%- JSON.stringify(countries) %>;
+const continentStats = <%- JSON.stringify(continentStats) %>;
+
+const continentColors = {
+  "Asia": "#4CAF50",
+  "Europe": "#2196F3",
+  "Africa": "#FF9800",
+  "North America": "#9C27B0",
+  "South America": "#F44336",
+  "Oceania": "#009688",
+  "Antarctica": "#795548"
+};
+
+// ------------------------
+// 1. Map Coloring
+// ------------------------
+let coloredCount = 0;
+
+visitedCountries.forEach(country => {
+  const el = document.getElementById(country.code.toUpperCase());
+  if (el && country.continent) {
+    el.style.fill = continentColors[country.continent] || "#ccc";
+    coloredCount++;
+  }
+});
+
+// Optional counter
+const counterEl = document.getElementById("counter");
+if (counterEl) counterEl.innerText = coloredCount;
+
+// ------------------------
+// 2. Tooltip
+// ------------------------
+const tooltip = document.getElementById("tooltip");
+
+document.querySelectorAll(".ag-canvas_svg path").forEach(path => {
+  path.addEventListener("mouseenter", () => {
+    tooltip.style.display = "block";
+    tooltip.innerText = path.getAttribute("title");
   });
+  path.addEventListener("mousemove", e => {
+    tooltip.style.left = e.clientX + 10 + "px";
+    tooltip.style.top = e.clientY + 10 + "px";
+  });
+  path.addEventListener("mouseleave", () => {
+    tooltip.style.display = "none";
+  });
+});
 
-  // Update counter
-  document.getElementById("counter").innerText = coloredCount;
+// ------------------------
+// 3. Doughnut Chart with Percentages
+// ------------------------
+const labels = Object.keys(continentColors); // all 7 continents
+const data = labels.map(cont => {
+  const item = continentStats.find(c => c.continent === cont);
+  return item ? Number(item.count) : 0; // 0 for unvisited continents
+});
+
+const ctx = document.getElementById("continentChart").getContext("2d");
+
+new Chart(ctx, {
+  type: "doughnut",
+  data: {
+    labels: labels,
+    datasets: [{
+      data: data,
+      backgroundColor: labels.map(cont => continentColors[cont])
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: "65%",
+    plugins: {
+      legend: { position: "bottom" },
+      datalabels: {
+        color: "#fff",
+        formatter: (value, ctx) => {
+          const sum = ctx.chart.data.datasets[0].data.reduce((a,b) => a+b,0);
+          return sum ? (value / sum * 100).toFixed(1) + "%" : "0%";
+        },
+        font: { weight: 'bold', size: 14 }
+      }
+    }
+  },
+  plugins: [ChartDataLabels]
+});
 </script>
 
-  <!-- <script>
-  // Pass the countries array from Node directly to JS
-  const visitedCountries = <%- JSON.stringify(countries) %>;
-  const highlightColor = "<%= color %>";
-
-  visitedCountries.forEach(code => {
-    const el = document.getElementById(code.toUpperCase());
-    if (el) {
-      el.style.fill = highlightColor;
-    } else {
-      console.warn(`No SVG element found for country code: ${code}`);
-    }
-  });
-</script> -->
-
-  <!-- <script>
-   
-
-    const country_codes = "<%= countries %>".split(",")
-    console.log(typeof ("<%= countries %>"))
-    country_codes.forEach(code => {
-      document.getElementById(code).style.fill = "<%= color %>"
-    });
-   
-
-
-  </script> -->
 </body>
-
 </html>
+
