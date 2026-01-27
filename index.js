@@ -231,7 +231,7 @@ app.get("/", requireLogin, async (req, res) => {
         continentStats,
         total: countries.length,
         color: user.color,
-        error: `${country_name} is already visited`,
+        error: `${country_name} has already been visited`,
         userName: user.name,
       });
     }

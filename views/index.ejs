@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Travel Tracker</title>
   <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.15.0/css/flag-icons.min.css"/>
+
+
 </head>
 <body>
   <!-- ------------------------ -->
@@ -22,11 +25,14 @@
   <!-- ------------------------ -->
   <form action="/add" method="post" class="add-form">
     <input type="text" name="country" autofocus placeholder="<%= error ? error : 'Enter country name' %>">
-    <button type="submit" class="add-button" style="background-color: <%= color %>;">Add</button>
+    <button type="submit" class="add-button" >Add</button>
   </form>
 
   <% if (error) { %>
-    <p class="error"><%= error %></p>
+    <!-- <p class="error"><%= error %></p> -->
+     <div class="error-message">
+    <span>⚠️ <%= error %></span>
+  </div>
   <% } %>
   
     <!-- ------------------------ -->
@@ -397,13 +403,61 @@
     
   </section>
 
+  <div class="right-panel"> 
+    <div class="chart">
+  <h3>Countries Visited by Continent</h3>
+  <hr >
+  <canvas id="continentChart"></canvas>
+  <div class="legend-grid">
+  <span><i class="asia"></i> Asia</span>
+  <span><i class="europe"></i> Europe</span>
+  <span><i class="africa"></i> Africa</span>
+  <span><i class="north-america"></i> North America</span>
+  <span><i class="south-america"></i> South America</span>
+  <span><i class="oceania"></i> Oceania</span>
+</div>
+
+</div>
+
 
   
-    <!-- Dashboard -->
-    <aside class="dashboard">
-      <h2>Dashboard</h2>
 
-      <!-- Stats -->
+
+      <div class="countries-list recent-visits">
+            <h3>Most Recent Visits</h3>
+          <hr >
+  <div class="recent-countries">
+    <% 
+      const recentFive = countries.slice(-5).reverse(); // last 5, most recent first
+      recentFive.forEach(country => { 
+    %>
+      <div class="country-line">
+        <span class="fi fi-<%= country.code.toLowerCase() %>"></span>
+        <span class="country-name"><%= country.name %></span>
+      </div>
+    <% }) %>
+  </div>
+</div>
+  </div>
+
+</div>
+    
+      
+
+   <!-- Visited by Continent (List) -->
+ <!-- <h3>Visited by Continent</h3>
+<ul>
+  <% continentStats.forEach(item => { %>
+    <li><%= item.continent %>: <%= item.count %></li>
+  <% }) %>
+</ul> -->
+
+    
+    <!-- Dashboard -->
+    <!-- <aside class="dashboard"> -->
+      <!-- <h2>Dashboard</h2>
+
+  
       <div class="stats">
         <p>Total Countries Visited: <%= total %></p>
         <p>Percentage of World: <%= ((total / 195) * 100).toFixed(1) %>%</p>
@@ -411,37 +465,11 @@
 <% if (countries.length > 0) { %>
   <p>Most Recent Visit: <%= countries[countries.length - 1].name %> (<%= countries[countries.length - 1].code %>)</p>
 <% } %>
-      </div>
-
-      <!-- Visited Countries List  -->
-       <div class="countries-list">
-        <h3>Visited Countries</h3>
-        <ul>
-          <% countries.forEach(country => { %>
-          
-              <li><%= country.name %> (<%= country.code %>) </li>
-          <% }) %>
-        </ul> 
+      </div> -->
+    
 
 
-      </div>
-   <!-- Visited by Continent (List) -->
- <h3>Visited by Continent</h3>
-<ul>
-  <% continentStats.forEach(item => { %>
-    <li><%= item.continent %>: <%= item.count %></li>
-  <% }) %>
-</ul>
 
-    </aside>
-     <!-- Doughnut Chart -->
-    <div class="chart">
-  <h3>Visited by Continent</h3>
-  <canvas id="continentChart"></canvas>
-</div>
-
-
-  </div>
   
 
   <!-- ------------------------ -->
@@ -502,6 +530,7 @@ document.querySelectorAll(".ag-canvas_svg path").forEach(path => {
   });
 });
 
+
 // ------------------------
 // 3. Doughnut Chart with Percentages
 // ------------------------
@@ -526,12 +555,13 @@ new Chart(ctx, {
     responsive: true,
     cutout: "65%",
     plugins: {
-      legend: { position: "bottom" },
+      legend: false,
       datalabels: {
         color: "#fff",
         formatter: (value, ctx) => {
+           if (value === 0) return null;
           const sum = ctx.chart.data.datasets[0].data.reduce((a,b) => a+b,0);
-          return sum ? (value / sum * 100).toFixed(1) + "%" : "0%";
+          return ((value / sum) * 100).toFixed(1) + "%" ;
         },
         font: { weight: 'bold', size: 14 }
       }
@@ -539,7 +569,9 @@ new Chart(ctx, {
   },
   plugins: [ChartDataLabels]
 });
-</script>
+</script> 
+
+
 
 </body>
 </html>
