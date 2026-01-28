@@ -98,7 +98,7 @@ app.get("/register", (req, res) => {
 
 // Register submit
 app.post("/register", async (req, res) => {
-  const { name, email, password, color } = req.body;
+  const { name, email, password } = req.body;
 
   // Check if email already exists
   const exists = await db.query("SELECT 1 FROM users WHERE email=$1", [email]);
@@ -109,8 +109,8 @@ app.post("/register", async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const result = await db.query(
-    "INSERT INTO users (name, email, password, color) VALUES ($1,$2,$3,$4) RETURNING id",
-    [name, email, hashedPassword, color]
+    "INSERT INTO users (name, email, password) VALUES ($1,$2,$3) RETURNING id",
+    [name, email, hashedPassword]
   );
 
   // Store user in session
@@ -155,7 +155,7 @@ app.get("/", requireLogin, async (req, res) => {
     countries,
      continentStats,
       total: countries.length, 
-    color: user.color, 
+    // color: user.color, 
     error: null,
      userName: user.name, 
     });
@@ -164,32 +164,7 @@ app.get("/", requireLogin, async (req, res) => {
   res.send("Something went wrong"); } }); 
 
 
-  // // Add visited country 
-  // app.post("/add", requireLogin, async (req, res) => { 
-  //   const { country } = req.body; 
-  //   const user = await getCurrentUser(req); 
-  //   try { 
-  //     const result = await db.query( "SELECT country_code FROM countries WHERE country_name ILIKE $1", [country] ); 
-  //     if (result.rows.length === 0) { 
-  //         const countries = await getVisitedCountries(user.id); 
-  //          const continentStats = await getVisitedByContinent(user.id);
-  //         return res.render("index.ejs", {
-  //        countries, 
-  //          continentStats,
-  //        total: countries.length, 
-  //        color: user.color, 
-  //        error: "Country not found", 
-  //        userName: user.name, }); 
-  //       } 
-  //       const countryCode = result.rows[0].country_code; 
-  //       // Insert if not already visited
-  //        await db.query( "INSERT INTO visited_countries (user_id, country_code) VALUES ($1,$2) ON CONFLICT DO NOTHING", [user.id, countryCode] );
-  //        res.redirect("/"); } 
-  //        catch (err) { 
-  //         console.error(err);
-  //          res.redirect("/"); 
-  //         } 
-  //       }); 
+  
 
   app.post("/add", requireLogin, async (req, res) => {
   const country = req.body.country.trim();
@@ -209,7 +184,7 @@ app.get("/", requireLogin, async (req, res) => {
         countries,
         continentStats,
         total: countries.length,
-        color: user.color,
+      //  color: user.color,
         error: "Country not found",
         userName: user.name,
       });
@@ -230,7 +205,7 @@ app.get("/", requireLogin, async (req, res) => {
         countries,
         continentStats,
         total: countries.length,
-        color: user.color,
+       // color: user.color,
         error: `${country_name} has already been visited`,
         userName: user.name,
       });

@@ -23,10 +23,12 @@
   <!-- ------------------------ -->
   <!-- ADD COUNTRY FORM         -->
   <!-- ------------------------ -->
+  
   <form action="/add" method="post" class="add-form">
-    <input type="text" name="country" autofocus placeholder="<%= error ? error : 'Enter country name' %>">
+    <input type="text"  id="countryInput" name="country" autofocus placeholder="<%= error ? error : 'Enter country name' %>">
     <button type="submit" class="add-button" >Add</button>
   </form>
+  
 
   <% if (error) { %>
     <!-- <p class="error"><%= error %></p> -->
@@ -38,8 +40,10 @@
     <!-- ------------------------ -->
   <!-- MAIN CONTENT: MAP + DASHBOARD -->
   <!-- ------------------------ -->
-   <div class="main-content">
+
+   <div class="main-content grid-layout">
     <!-- Map -->
+      <div class="map-column">
   <section class="ag-canvas">
    
 
@@ -402,6 +406,32 @@
 <div id="tooltip" class="map-tooltip"></div>
     
   </section>
+  <!-- MAP STATS (same width as map) -->
+<!-- <div class="map-stats">
+  <div class="stat-card">
+    <div class="stat-value"><%= total %></div>
+    <div class="stat-label">Countries Visited</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value">
+      <%= ((total / 195) * 100).toFixed(1) %>%
+    </div>
+    <div class="stat-label">World Covered</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value">
+      <% if (countries.length > 0) { %>
+        <%= countries[countries.length - 1].name %>
+      <% } else { %>
+        —
+      <% } %>
+    </div>
+    <div class="stat-label">Last Added</div>
+  </div>
+</div> -->
+</div>
 
   <div class="right-panel"> 
     <div class="chart">
@@ -426,12 +456,13 @@
       <div class="countries-list recent-visits">
             <h3>Most Recent Visits</h3>
           <hr >
+          
   <div class="recent-countries">
     <% 
       const recentFive = countries.slice(-5).reverse(); // last 5, most recent first
       recentFive.forEach(country => { 
     %>
-      <div class="country-line">
+      <div class="country-line" >
         <span class="fi fi-<%= country.code.toLowerCase() %>"></span>
         <span class="country-name"><%= country.name %></span>
       </div>
@@ -444,16 +475,10 @@
     
       
 
-   <!-- Visited by Continent (List) -->
- <!-- <h3>Visited by Continent</h3>
-<ul>
-  <% continentStats.forEach(item => { %>
-    <li><%= item.continent %>: <%= item.count %></li>
-  <% }) %>
-</ul> -->
+ 
 
     
-    <!-- Dashboard -->
+  
     <!-- <aside class="dashboard"> -->
       <!-- <h2>Dashboard</h2>
 
@@ -467,6 +492,7 @@
 <% } %>
       </div> -->
     
+
 
 
 
@@ -569,6 +595,24 @@ new Chart(ctx, {
   },
   plugins: [ChartDataLabels]
 });
+
+const countryInput = document.getElementById("countryInput");
+const countryItems = document.querySelectorAll(".country-line");
+
+countryInput.addEventListener("input", () => {
+  const value = countryInput.value.toLowerCase();
+
+  countryItems.forEach(item => {
+    const name = item.dataset.name;
+
+    if (name.includes(value)) {
+      item.style.display = "flex";
+    } else {
+      item.style.display = "none";
+    }
+  });
+});
+
 </script> 
 
 
